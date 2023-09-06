@@ -19,6 +19,16 @@ public:
 		position pos_new(this->lines + pos.lines, this->lists + pos.lists);
 		return pos_new;
 	}
+	position operator-(const position& pos)
+	{
+		position pos_new(this->lines - pos.lines, this->lists - pos.lists);
+		return pos_new;
+	}
+	position operator*(const int coef)
+	{
+		position pos_new(this->lines * coef, this->lists * coef);
+		return pos_new;
+	}
 	bool operator==(const position& pos)
 	{
 		return this->lines == pos.lines && this->lists == pos.lists;

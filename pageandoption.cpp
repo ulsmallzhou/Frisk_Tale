@@ -11,11 +11,11 @@ page Home_Start(topos(0, 0), B_HEIGHT, B_WIDTH, home_start, pr_home_start),\
 page Home_Start_Play(topos(5, 55), 41, 74, home_start_play, pr_home_start_play),\
 	 Home_Start_SaveLoad(topos(0, 59), B_HEIGHT, 66, home_start_saveload, pr_home_start_saveload);//正式进入游戏（NewGame, Continue），存读档界面
 
-page Home_Start_Play_Adventure(topos(10, 59), 30, 66, home_start_play_adventure, pr_home_start_play_adventure),\
+page Home_Start_Play_Adventure(topos(5, 59), 41, 66, home_start_play_adventure, pr_home_start_play_adventure),\
 	 Home_Start_Play_Training(topos(5, 59), 41, 66, home_start_play_training, pr_home_start_play_training),\
-	 Home_Start_SaveLoad_Archieve1(topos(5, 55), 41, 74, home_start_saveload_archieve, ),\
-	 Home_Start_SaveLoad_Archieve2,\
-	 Home_Start_SaveLoad_Archieve3;
+	 Home_Start_SaveLoad_Archieve1(topos(5, 68), 41, 48, home_start_saveload_archieve1, pr_home_start_saveload_archieve1),\
+	 Home_Start_SaveLoad_Archieve2(topos(5, 68), 41, 48, home_start_saveload_archieve2, pr_home_start_saveload_archieve2),\
+	 Home_Start_SaveLoad_Archieve3(topos(5, 68), 41, 48, home_start_saveload_archieve3, pr_home_start_saveload_archieve3);
 
 page Home_Start_Play_Adventure_Levels,\
 	 Home_Start_Play_Adventure_Back,\
@@ -54,13 +54,13 @@ option Home_Start_Play_Adventure__Levels[levels_num] = {\
 	{.height = 11, .width = 60, .chartype = 2, .text = "LEVEL4", .option_position = topos(40, 3), .text_position = topos(2, 3), .nextpage = &Empty},\
 	{.height = 11, .width = 60, .chartype = 2, .text = "LEVEL5", .option_position = topos(53, 3), .text_position = topos(2, 3), .nextpage = &Empty}},\
 	   Home_Start_Play_Adventure__Back(11, 60, 2, " BACK ", topos(66, 3), topos(2, 3), &Empty);
-option Home_Start_Play_Training__Attack,\
-	   Home_Start_Play_Training__Defense,\
-	   Home_Start_Play_Training__Magic,\
-	   Home_Start_Play_Training__Back;
-option Home_Start_SaveLoad_Archieve__Save,\
-	   Home_Start_SaveLoad_Archieve__Load,\
-	   Home_Start_SaveLoad_Archieve__Back;
+option Home_Start_Play_Training__Attack(11, 68, 2, "ATTACK", topos(1, 3), topos(2, 3), &Home_Start_Play_Training_Attack),\
+	   Home_Start_Play_Training__Defense(11, 68, 2, "DEFENSE", topos(14, 3), topos(2, 3), &Home_Start_Play_Training_Defense),\
+	   Home_Start_Play_Training__Magic(11, 68, 2, " MAGIC", topos(27, 3), topos(2, 3), &Home_Start_Play_Training_Magic),\
+	   Home_Start_Play_Training__Back(11, 68, 2, " BACK ", topos(40, 3), topos(2, 3), &Empty);
+option Home_Start_SaveLoad_Archieve__Save(11, 42, 2, "SAVE", topos(2, 3), topos(2, 3), &Empty),\
+	   Home_Start_SaveLoad_Archieve__Load(11, 42, 2, "LOAD", topos(15, 3), topos(2, 3), &Empty),\
+	   Home_Start_SaveLoad_Archieve__Back(11, 42, 2, "BACK", topos(28, 3), topos(2, 3), &Empty);
 
 option Home_Start_SaveLoad_Archieve_Success__Ok;
 
