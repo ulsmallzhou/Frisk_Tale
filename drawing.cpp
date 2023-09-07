@@ -38,6 +38,7 @@ using namespace std;
 
 int main()
 {
+	//cout<<update_get(200)<<" ";//应当检测连续的三个数以排除意外波动 
 	initialization();//初始化
 	clock_t start = clock();
 	Home.func();
