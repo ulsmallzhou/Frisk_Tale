@@ -34,3 +34,4 @@ void pr_home_start_play_training(position pos, int refresh);
 void pr_home_start_saveload_archieve1(position pos, int refresh);
 void pr_home_start_saveload_archieve2(position pos, int refresh);
 void pr_home_start_saveload_archieve3(position pos, int refresh);
+

@@ -36,13 +36,21 @@ using namespace std;
 //战斗-饶恕//spare, run, save, cancel
 //战斗事件(分事件成功执行返回1，使得事件结束) 
 
+/* TODO (#1#): 给所有自定义类型增加output函数 */
+
 int main()
 {
-	//cout<<update_get(200)<<" ";//应当检测连续的三个数以排除意外波动 
+	cyclist<int> a({1, 2, 3, 4}), b({2, 3, 4, 5});
+	Tuple<cyclist<int>, cyclist<int>> c(a, b), d(b, a);
+	cout<<c.output();
+	/*for(int num = 0; ; num += 1)
+	{
+		cout<<update_get(50)<<" ";//应当检测连续的三个数以排除意外波动
+	}*//*
 	initialization();//初始化
 	clock_t start = clock();
 	Home.func();
 	clock_t stop = clock();
-	endwords(start, stop);
+	endwords(start, stop);*/
 	return 0;
 }

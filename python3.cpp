@@ -1,4 +1,21 @@
 template <typename T>
+class tostr
+{
+public:
+	static string tostring(int anum){return to_string(anum);}
+	static string tostring(string astr){return "\"" + astr + "\"";}
+	static string tostring(char achar)
+	{
+		string str = "";
+		str = achar;
+		return "\'" + str + "\'";
+	}
+	static string tostring(T* aT){T at = *aT; return at.output();}
+};
+
+
+
+template <typename T>
 class node//½ÚµãÄ£°å 
 {
 public:
@@ -13,7 +30,7 @@ public:
 
 
 template <typename T>
-class cyclist//ÁĞ±íÄ£°å£¨ÆäÊµÊÇÑ­»·Ë«ÏòÁ´±í£© 
+class cyclist//ÁĞ±íÄ£°å£¨ÆäÊµÊÇÑ­»·Ë«ÏòÁ´±í£©
 {
 public:
 	int lsize = 0;//³¤¶È 
@@ -90,18 +107,18 @@ public:
 			delete start;
 	}
 	int size(){return lsize;}
-	void output()//Êä³ö£¬ĞèÒªÀàĞÍTÖØÔØÁË<< 
+	string output()//Êä³ö
 	{
-		cout<<"[";
+		string outs = "[";
 		node<T>* pin = start;
 		for(int num = 0; num < lsize; num += 1)
 		{
-			cout<<(pin->value);
+			outs = outs + tostr<T>::tostring(&(pin->value));
 			if(num < lsize - 1)
-				cout<<", ";
+				outs = outs + ", ";
 			pin = pin->next;
 		}
-		cout<<"]";
+		return outs + "]";
 	}
 	void append(initializer_list<T> inputs)//ÒÔ³õÊ¼»¯ÁĞ±íÔö¼ÓÔªËØ
 	{
@@ -318,8 +335,59 @@ public:
 };
 
 
+template <typename T0, typename T1>
+class Tuple//¶şÔªÔª×é 
+{
+public:
+	T0 elemt_0;
+	T1 elemt_1;
+	Tuple(){}
+	Tuple(T0 aelemt_0, T1 aelemt_1)
+	{
+		elemt_0 = aelemt_0;
+		elemt_1 = aelemt_1;
+	}
+	Tuple(Tuple<T0, T1> &atuple)
+	{
+		elemt_0 = atuple.elemt_0;
+		elemt_1 = atuple.elemt_1;
+	}
+	~Tuple(){}
+	void set(T0 aelemt_0, T1 aelemt_1)
+	{
+		elemt_0 = aelemt_0;
+		elemt_1 = aelemt_1;
+	}
+	friend ostream &operator<<(ostream &output, const Tuple &atuple)
+	{
+		output<<"("<<atuple.elemt_0<<", "<<atuple.elemt_1<<")";
+		return output;
+	}
+	Tuple<T1, T0> swap(){return Tuple(elemt_1, elemt_0);}
+	string output()
+	{
+		string outs = "(";
+		outs = outs + tostr<T0>::tostring(&elemt_0);
+		outs = outs + ", ";
+		outs = outs + tostr<T1>::tostring(&elemt_1);
+		return outs + ")";
+	}
+};
+
+
+template <class T_0, class T_1>
+cyclist<Tuple<T_0, T_1>> merge(cyclist<T_0> list_0, cyclist<T_1> list_1)//Á½¸öÁĞ±íÆ´ºÏÎªÔª×éÁĞ±í 
+{
+	cyclist<Tuple<T_0, T_1>> list_merge;
+	int size = min(list_0.lsize, list_1.lsize);
+	for(int id = 0; id < size; id += 1)
+		list_merge.append({Tuple<T_0, T_1>(list_0[id], list_1[id])});
+	return list_merge;
+}
+
+
 template <typename T_key, typename T_value>
-class dict//×ÖµäÀà 
+class dict//×ÖµäÀà£¬¿ÉÓÃÀ´×öcounter 
 {
 public:
 	cyclist<T_key> key;
@@ -388,37 +456,57 @@ public:
 			}
 		return 0;
 	}
-	bool del(T_value avalue)//·µ»ØÊÇ·ñ³É¹¦É¾³ı
-	{
-		bool* pin = new bool[dsize];
-		int dels = 0;
-		for(int id = 0; id < dsize; id += 1)
-		{
-			pin[id] = (avalue == value[id]);
-			dels += 1;
-		}
-		for(int id = dsize - 1; id >= 0; id -= 1)
-			if(pin[id])
-			{
-				key.del(id);
-				value.del(id);
-			}
-		dsize -= dels;
-		return dels;
-	}
 	bool find(T_key akey){return key.find(akey) != -1;}//²éÕÒ¼üÖµÊÇ·ñÒÑ´æÔÚ 
 	cyclist<T_key> get_keys(){return key;}//·µ»Ø¼üµÄÁĞ±í 
 	cyclist<T_value> get_values(){return value;}//·µ»ØÖµµÄÁĞ±í 
-	void check()//Êä³ö×ÖµäµÄËùÓĞ¼üÖµ¶Ô£¬ĞèÒªT_keyºÍT_value¶¼ÖØÔØÁË<<
+	string output()//Êä³ö×ÖµäµÄËùÓĞ¼üÖµ¶Ô£¬ĞèÒªT_keyºÍT_value¶¼ÖØÔØÁË<<
 	{
-		cout<<"{";
+		string outs = "{";
 		for(int id = 0; id < dsize; id += 1)
 		{
-			cout<<key[id]<<": "<<value[id];
+			outs = outs + tostr<T_key>::tostring(&key[id]) + ": " + tostr<T_value>::tostring(&value[id]);
 			if(id < dsize - 1)
-				cout<<", ";
+				outs = outs + ", ";
 		}
-		cout<<"}";
+		return outs + "}";
+	}
+	cyclist<Tuple<T_key, T_value>> items()
+	{
+		cyclist<Tuple<T_key, T_value>> item;
+		for(int id = 0; id < dsize; id += 1)
+			item.append({Tuple<T_key, T_value>(key[id], value[id])});
+		return item;
+	}
+};
+template <typename T>
+class counter//Í³¼Æ¼ÆÊıÆ÷ 
+{
+	dict<T, int> pool;
+	counter(){}
+	counter(cyclist<T> names)//ÉèÖÃ¼ÆÊıÁĞ±í£¬Ä¬ÈÏÈ«ÖØÖÃ0 
+	{
+		auto* pin = names.start;
+		int length = names.size();
+		for(int num = 0; num < length; num += 1)
+		{
+			pool.set(*pin, 0);
+			pin++;
+		}
+	}
+	void set_zero()//È«²¿ÖØÖÃ 
+	{
+		int length = pool.size();
+		cyclist<T> keys = pool.get_keys();
+		for(int id = 0; id < length; id += 1)
+			pool.set(keys[id], 0);
+	}
+	void output(){pool.output();}
+	void plus(T aname){pool.set(aname, pool[aname] + 1);}//¼ÆÊı£¬ÈôÃû×ÖÁĞ±íÖĞ²»´æÔÚ¸ÃÖµ£¬Ôò±¨´íÍË³ö 
+	void plus(cyclist<T> names)//Ò»´ÎĞÔ¼ÆÊı¶à´Î 
+	{
+		int length = names.size();
+		for(int id = 0; id < length; id += 1)
+			pool.set(names[id], pool[names[id]] + 1);
 	}
 };
 
@@ -447,4 +535,28 @@ int** product(initializer_list<int> axis)//µÑ¿¨¶û»ı£¬Éú³É¶şÎ¬Êı×é£¬Ã¿Ò»ĞĞ¶¼ÊÇÒ»¸
 	}
 	return out;
 }
+/*typeid().name()
+int : i
+double : d
+char : c
+string : A[length + 1]_c//"123"->A4_c
+string : Ss//ËùÓĞstringÍ¨ÓÃ 
+dict<int, int> : 4dictIiiE : 4dict<I(i, i)E>
+Tuple<int, char> : 5TupleIicE : 5Tuple<I(i, c)E>
+Tuple<char, char> : 5TupleIccE : 5Tuple<I(c, c)E>
+Tuple<char, Tuple<string, double>> : 5TupleIcS_ISsdEE : 5Tuple<I(c, S_<I(Ss-d)E>)E>
+Tuple<Tuple<char, int>, Tuple<string, double>> : 5TupleIS_IciES_ISsdEE : 5Tuple<I(S_<I(c-i)E>S_<I(Ss-d)E>)E>
+cyclist<int> : 7cyclistIiE : 7cyclist<I(i)E>
+cyclist<char> : 7cyclistIcE : 7cyclist<I(c)E>
+cyclist<Tuple<char, string>> : 7cyclistI5TupleIcSsEE : 7cyclist<I(5Tuple<I(c, Ss)E>)E>
+Tuple<cyclist<int>, cyclist<double>> : 5TupleI7cyclistIiES0_IdEE : 5Tuple<I(7cyclist<I(i)E>, S0_<I(d)E>)E>
+Tuple<cyclist<int>, Tuple<double, int>> : 5TupleI7cyclistIiES_IdiEE : 5Tuple<I(7cyclist<I(i)E>, S_<I(d, i)E>)E>
+Tuple<int, int*> : 5TupleIiPiE : 5Tuple<I(i, P-i)E>
+Tuple<int, int**> : 5TupleIiPPiE : 5Tuple<I(i, PP-i)E>
+Tuple<int, Tuple<int, double>*> : 5TupleIiPS_IidEE : 5Tuple<I(i, P-S_<I(i, d)E>)E>
+Tuple<Tuple<int, double>, Tuple<int, double>> : 5TupleIS_IidES0_E : 5Tuple<I(S_<I(i, d)E>, S0_)E>
+Tuple<Tuple<int, double>, Tuple<int, double>*> : 5TupleIS_IidEPS0_E : 5Tuple<I(S_<I(i, d)E>, P-S0_)E>
+Tuple<Tuple<int, double>*, Tuple<int, double>> : 5TupleIPS_IidES0_E : 5Tuple<I(P-S_<I(i, d)E>, S0_)E>
+Tuple<Tuple<int, double>*, Tuple<int, double>*> : 5TupleIPS_IidES1_E : 5Tuple<I(P-S_<I(i, d)E>, S1_)E>
+*/
 

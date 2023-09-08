@@ -56,3 +56,4 @@ void press(string str, int delay)//按下并弹起，以给定的延迟
 	Sleep(delay);
 	press_up(str);
 }
+

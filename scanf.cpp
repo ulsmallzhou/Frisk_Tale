@@ -77,12 +77,25 @@ int timer_getakey(initializer_list<char> cases, long long int maxdelay)//maxdela
 	return (maxdelay > delay ? 0 : 1) * cases.size() + key;
 }
 //获取接下来的一个合法输入并返回其序号，若超出给定时间（ms）则返回值增加匹配键位数
-int update_get(int delay)//实时获取键盘被按下的情况，返回该按键的char值，否则返回-1；delay单位ms 
+int update_get(int delay, int counter)//实时获取键盘被按下的情况，返回该按键的char值，否则返回-1；delay单位ms
 {
-	Sleep(delay);
-	gotopos(LAST_POS);
-	int outs = -1;
-	if(_kbhit())
-		outs = (int)_getch();
-	return outs;
+	int out = -1;
+	dict<int, int> keybd_input;
+	for(int num = 0; num < counter; num += 1)
+	{
+		Sleep(delay / counter);
+		gotopos(LAST_POS);
+		if(_kbhit())
+			out = (int)_getch();
+		else
+			out = -1;
+		if(keybd_input.find(out) != -1)
+			keybd_input.set(out, keybd_input[out] + 1);
+		else
+			keybd_input.set(out, 1);
+	}
+	
+	return out;
 }
+//该方法在低delay下不稳定，需要较高counter取样 
+
