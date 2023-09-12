@@ -1,21 +1,4 @@
 template <typename T>
-class tostr
-{
-public:
-	static string tostring(int anum){return to_string(anum);}
-	static string tostring(string astr){return "\"" + astr + "\"";}
-	static string tostring(char achar)
-	{
-		string str = "";
-		str = achar;
-		return "\'" + str + "\'";
-	}
-	static string tostring(T* aT){T at = *aT; return at.output();}
-};
-
-
-
-template <typename T>
 class node//节点模板 
 {
 public:
@@ -78,11 +61,13 @@ public:
 		start->before = pin;
 		pin->next = start;//首尾相连 
 	}
-	cyclist(cyclist &alist)//拷贝构造函数，要求alist非空 
+	cyclist(const cyclist<T> &alist)//拷贝构造函数，要求alist非空 
 	{
 		lsize = alist.lsize;
 		start = new node<T>;
-		start->value = alist[0];
+		node<T>* alist_pin = alist.start;
+		start->value = alist_pin->value;
+		alist_pin = alist_pin->next;
 		start->before = start;
 		start->next = start;
 		node<T>* pin = start;
@@ -91,7 +76,8 @@ public:
 			pin->next = new node<T>;
 			pin->next->before = pin;
 			pin = pin->next;
-			pin->value = alist[num];
+			pin->value = alist_pin->value;
+			alist_pin = alist_pin->next;
 		}
 		start->before = pin;
 		pin->next = start;
@@ -107,19 +93,6 @@ public:
 			delete start;
 	}
 	int size(){return lsize;}
-	string output()//输出
-	{
-		string outs = "[";
-		node<T>* pin = start;
-		for(int num = 0; num < lsize; num += 1)
-		{
-			outs = outs + tostr<T>::tostring(&(pin->value));
-			if(num < lsize - 1)
-				outs = outs + ", ";
-			pin = pin->next;
-		}
-		return outs + "]";
-	}
 	void append(initializer_list<T> inputs)//以初始化列表增加元素
 	{
 		auto* input = inputs.begin();
@@ -332,8 +305,47 @@ public:
 		}
 		return success;
 	}
+	friend ostream &operator<<(ostream &output, const cyclist<T> &alist)
+	{
+		output<<"[";
+		/*char Ttype = typeid(T).name()[0];
+		int sid = (Ttype == 'c' ? 1 : (Ttype == 'S' ? 2 : 0));
+		string str[3] = {"", "\'", "\""};*/
+		node<T>* pin = alist.start;
+		for(int id = 0; id < alist.lsize; id += 1)
+		{
+			if(id > 0)
+				output<<", ";
+			//output<<str[sid]<<pin->value<<str[sid];
+			output<<pin->value;
+			pin = pin->next;
+		}
+		output<<"]";
+	}
+	void operator=(const cyclist<T> &alist)
+	{
+		lsize = alist.lsize;
+		start = new node<T>;
+		node<T>* alist_pin = alist.start;
+		start->value = alist_pin->value;
+		alist_pin = alist_pin->next;
+		start->before = start;
+		start->next = start;
+		node<T>* pin = start;
+		for(int num = 1; num < lsize; num += 1)
+		{
+			pin->next = new node<T>;
+			pin->next->before = pin;
+			pin = pin->next;
+			pin->value = alist_pin->value;
+			alist_pin = alist_pin->next;
+		}
+		start->before = pin;
+		pin->next = start;
+	}
 };
 
+/* TODO (#1#): 重载赋值号 */
 
 template <typename T0, typename T1>
 class Tuple//二元元组 
@@ -347,7 +359,7 @@ public:
 		elemt_0 = aelemt_0;
 		elemt_1 = aelemt_1;
 	}
-	Tuple(Tuple<T0, T1> &atuple)
+	Tuple(const Tuple<T0, T1> &atuple)
 	{
 		elemt_0 = atuple.elemt_0;
 		elemt_1 = atuple.elemt_1;
@@ -358,20 +370,9 @@ public:
 		elemt_0 = aelemt_0;
 		elemt_1 = aelemt_1;
 	}
-	friend ostream &operator<<(ostream &output, const Tuple &atuple)
-	{
-		output<<"("<<atuple.elemt_0<<", "<<atuple.elemt_1<<")";
-		return output;
-	}
 	Tuple<T1, T0> swap(){return Tuple(elemt_1, elemt_0);}
-	string output()
-	{
-		string outs = "(";
-		outs = outs + tostr<T0>::tostring(&elemt_0);
-		outs = outs + ", ";
-		outs = outs + tostr<T1>::tostring(&elemt_1);
-		return outs + ")";
-	}
+	T0 first_elemt(){return elemt_0;}
+	T1 second_elemt(){return elemt_1;}
 };
 
 
@@ -459,17 +460,6 @@ public:
 	bool find(T_key akey){return key.find(akey) != -1;}//查找键值是否已存在 
 	cyclist<T_key> get_keys(){return key;}//返回键的列表 
 	cyclist<T_value> get_values(){return value;}//返回值的列表 
-	string output()//输出字典的所有键值对，需要T_key和T_value都重载了<<
-	{
-		string outs = "{";
-		for(int id = 0; id < dsize; id += 1)
-		{
-			outs = outs + tostr<T_key>::tostring(&key[id]) + ": " + tostr<T_value>::tostring(&value[id]);
-			if(id < dsize - 1)
-				outs = outs + ", ";
-		}
-		return outs + "}";
-	}
 	cyclist<Tuple<T_key, T_value>> items()
 	{
 		cyclist<Tuple<T_key, T_value>> item;
@@ -500,7 +490,6 @@ class counter//统计计数器
 		for(int id = 0; id < length; id += 1)
 			pool.set(keys[id], 0);
 	}
-	void output(){pool.output();}
 	void plus(T aname){pool.set(aname, pool[aname] + 1);}//计数，若名字列表中不存在该值，则报错退出 
 	void plus(cyclist<T> names)//一次性计数多次 
 	{
@@ -508,6 +497,73 @@ class counter//统计计数器
 		for(int id = 0; id < length; id += 1)
 			pool.set(names[id], pool[names[id]] + 1);
 	}
+};
+
+
+template <typename T>
+class array_py//numpy数组 
+{
+public:
+	int dimension = 0;//维数 
+	cyclist<int> coordinates;//每个维数的长度
+	cyclist<long long int> prods;//辅助数组，计算系数用 
+	int value_num = 1;//总共的元素个数 
+	T* values = NULL;//元素的一元数组
+	array_py(){}
+	array_py(int dimen, cyclist<int> coordinatelist)//大小确定 
+	{
+		dimension = dimen;
+		for(int axis = 0; axis < dimen; axis += 1)
+		{
+			coordinates.append({coordinatelist[axis]});
+			value_num = max(1, value_num * coordinatelist[axis]);
+			prods.append({(long long int)coordinates[axis]});//先随便填数，让辅助数组达到需求长度 
+		}
+		values = new T[value_num];
+		prods[dimen - 1] = 1;
+		for(int axis = dimen - 2; axis >= 0; axis -= 1)
+			prods[axis] = coordinates[axis + 1] * prods[axis + 1];
+	}
+	array_py(int dimen, cyclist<int> coordinatelist, cyclist<T> valuelist)//大小确定，内容填充，顺便完成广播机制 
+	{
+		dimension = dimen;
+		for(int axis = 0; axis < dimen; axis += 1)
+		{
+			coordinates.append({coordinatelist[axis]});
+			value_num = max(1, value_num * coordinatelist[axis]);
+			prods.append({(long long int)coordinates[axis]});//先随便填数，让辅助数组达到需求长度 
+		}
+		values = new T[value_num];
+		for(int id = 0; id < value_num; id += 1)
+			values[id] = valuelist[id];
+		prods[dimen - 1] = 1;
+		for(int axis = dimen - 2; axis >= 0; axis -= 1)
+			prods[axis] = coordinates[axis + 1] * prods[axis + 1];
+	}
+	~array_py(){delete[] values;}
+	T &operator[](cyclist<int> subscripts)//越界访问将循环，下标从0开始；默认最后缺省的坐标分量为0，多的分量无效 
+	{
+		int length = subscripts.size();
+		cyclist<int> fixed_subscripts;
+		if(length >= dimension)
+			for(int axis = 0; axis < dimension; axis += 1)
+				fixed_subscripts.append({subscripts[axis] % coordinates[axis]});
+		else
+		{
+			for(int axis = 0; axis < length; axis += 1)
+				fixed_subscripts.append({subscripts[axis] % coordinates[axis]});
+			for(int axis = length; axis < dimension; axis += 1)
+				fixed_subscripts.append({0});
+		}
+		long long int ranks = 0;
+		for(int axis = 0; axis < dimension; axis += 1)
+			ranks += prods[axis] * fixed_subscripts[axis];
+		return values[ranks];
+	}
+	/*array<T> subarray(cyclist<int> subscripts)
+	{
+		
+	}*/
 };
 
 
