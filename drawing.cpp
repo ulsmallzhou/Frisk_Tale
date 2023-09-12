@@ -6,8 +6,8 @@
 #include <string>
 using namespace std;
 #include "keybd.cpp"
-#include "python3.cpp"/*
-#include "matrix.cpp"
+#include "python3.cpp"
+#include "matrix.cpp"/*
 #include "geometry.cpp"
 #include "color.cpp"
 #include "position.cpp"
@@ -29,7 +29,7 @@ using namespace std;
 //double duration = ((double)(stop - start))/CLK_TCK;
 
 
-//错误调试：1001(dict:KeyError), 1002(vatiable_array:OutOfRange)
+//错误调试：1001(dict:KeyError), 1002(vatiable_array:OutOfRange), 1003(DividedByZero)
 
 
 //战斗-战斗//punch, knife, magic, cancel
@@ -37,9 +37,6 @@ using namespace std;
 //战斗-物品//cancel
 //战斗-饶恕//spare, run, save, cancel
 //战斗事件(分事件成功执行返回1，使得事件结束) 
-
-/* TODO (#1#): 给所有自定义类型增加output函数 */
-
 int main()
 {
 	/*for(int num = 0; ; num += 1)
@@ -50,10 +47,22 @@ int main()
 	clock_t start = clock();
 	Home.func();
 	clock_t stop = clock();
-	endwords(start, stop);*/
-	cyclist<int> a({1, 2});
-	cyclist<cyclist<int>> b({a, cyclist<int>({2, 3, 4, 5, 6}), cyclist<int>({3, 4, 5, 6, 7, 8})});
-	cyclist<cyclist<cyclist<int>>> c({b, b});
-	cout<<c;
+	endwords(start, stop);*//*
+	matrix<int> m({column<int>({2, 3, 4, 5, 60000}),\
+				   column<int>({10, 20, 30, 40, 1}),\
+				   column<int>({200, 300, 400, 500, 20}),\
+				   column<int>({1000, 2000, 3000, 4000, 10})});
+	m.mult_line<int>(0, 3);
+	cout<<m;*/
+	matrix<int> a({column<int>({1, 2, 3}), column<int>({4, 5, 6}), column<int>({7, 8, 9})});
+	cout<<a;
+	a.mult_list(0, 3.3);
+	cout<<endl<<a;
+	a.swap_lines(0, 1);
+	cout<<endl<<a;
+	cout<<endl<<matrix<int>::quantity(5, 20);
+	a.right_extension(a);
+	a.right_extension(a);
+	cout<<endl<<a;
 	return 0;
 }

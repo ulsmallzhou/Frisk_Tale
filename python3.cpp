@@ -175,6 +175,89 @@ public:
 			pin = pin->next;
 		return pin->value;
 	}
+	template <typename T_other>
+	cyclist<T> operator+(const cyclist<T_other> &alist)//分别相加，+后面的list被广播（循环） 
+	{
+		int length = alist.lsize == 0 ? 0 : (lsize / alist.lsize) * alist.lsize;
+		cyclist<T> outlist;
+		node<T>* pin_1 = start;
+		node<T_other>* pin_2 = alist.start;
+		for(int id = 0; id < length; id += 1)
+		{
+			outlist.append({(T)(pin_1->value + pin_2->value)});
+			pin_1 = pin_1->next;
+			pin_2 = pin_2->next;
+		}
+		return outlist;
+	}
+	template <typename T_other>
+	cyclist<T> operator-(const cyclist<T_other> &alist)//和加法类似的减法 
+	{
+		int length = alist.lsize == 0 ? 0 : (lsize / alist.lsize) * alist.lsize;
+		cyclist<T> outlist;
+		node<T>* pin_1 = start;
+		node<T_other>* pin_2 = alist.start;
+		for(int id = 0; id < length; id += 1)
+		{
+			outlist.append({(T)(pin_1->value - pin_2->value)});
+			pin_1 = pin_1->next;
+			pin_2 = pin_2->next;
+		}
+		return outlist;
+	}
+	cyclist<T> operator-()//单纯负号重载 
+	{
+		cyclist<T> outlist;
+		node<T>* pin = start;
+		for(int id = 0; id < lsize; id += 1)
+		{
+			outlist.append({-(pin->value)});
+			pin = pin->next;
+		}
+		return outlist;
+	}
+	template <typename T_other>
+	cyclist<T> operator*(const T_other &coef)//乘法（禁止非数字类） 
+	{
+		cyclist<T> outlist;
+		node<T>* pin = start;
+		for(int id = 0; id < lsize; id += 1)
+		{
+			outlist.append({(T)((pin->value) * coef)});
+			pin = pin->next;
+		}
+		return outlist;
+	}
+	template <typename T_other>
+	cyclist<T> operator/(const T_other &coef)//除法（禁止非数字类） 
+	{
+		if(coef == 0)
+			exit(1003);
+		cyclist<T> outlist;
+		node<T>* pin = start;
+		for(int id = 0; id < lsize; id += 1)
+		{
+			outlist.append({(T)((pin->value) / coef)});
+			pin = pin->next;
+		}
+		return outlist;
+	}
+	bool operator==(const cyclist<T> &alist)
+	{
+		if(lsize != alist.lsize)
+			return 0;
+		node<T>* pin_1 = start;
+		node<T>* pin_2 = alist.start;
+		for(int id = 0; id < lsize; id += 1)
+		{
+			if(pin_1->value != pin_2->value)
+				return 0;
+			pin_1 = pin_1->next;
+			pin_2 = pin_2->next;
+		}
+		return 1;
+	}
+	bool operator!=(const cyclist<T> &alist){return !(*this == alist);}
 	void extend(cyclist<T> inputs)//列表拼接
 	{
 		int length = inputs.size();
@@ -305,19 +388,28 @@ public:
 		}
 		return success;
 	}
+	void empty()
+	{
+		if(lsize > 0)
+		{
+			for(int id = lsize - 1; id >= 0; id -= 1)
+				this->del(id);
+		}
+	}
 	friend ostream &operator<<(ostream &output, const cyclist<T> &alist)
 	{
-		output<<"[";
-		/*char Ttype = typeid(T).name()[0];
+		char Ttype = typeid(T).name()[0];
 		int sid = (Ttype == 'c' ? 1 : (Ttype == 'S' ? 2 : 0));
-		string str[3] = {"", "\'", "\""};*/
+		string str[3] = {"", "\'", "\""};
+		output<<"[";
 		node<T>* pin = alist.start;
 		for(int id = 0; id < alist.lsize; id += 1)
 		{
 			if(id > 0)
 				output<<", ";
-			//output<<str[sid]<<pin->value<<str[sid];
-			output<<pin->value;
+			output<<str[sid];
+			output<<(pin->value);
+			output<<str[sid];
 			pin = pin->next;
 		}
 		output<<"]";
@@ -345,7 +437,6 @@ public:
 	}
 };
 
-/* TODO (#1#): 重载赋值号 */
 
 template <typename T0, typename T1>
 class Tuple//二元元组 
@@ -373,6 +464,63 @@ public:
 	Tuple<T1, T0> swap(){return Tuple(elemt_1, elemt_0);}
 	T0 first_elemt(){return elemt_0;}
 	T1 second_elemt(){return elemt_1;}
+	friend ostream &operator<<(ostream &output, const Tuple<T0, T1> &aTuple)
+	{
+		char Ttype1 = typeid(T0).name()[0], Ttype2 = typeid(T1).name()[0];
+		int sid1 = (Ttype1 == 'c' ? 1 : (Ttype1 == 'S' ? 2 : 0)), sid2 = (Ttype2 == 'c' ? 1 : (Ttype2 == 'S' ? 2 : 0));
+		string str[3] = {"", "\'", "\""};
+		output<<"(";
+		output<<str[sid1];
+		output<<aTuple.elemt_0;
+		output<<str[sid1];
+		output<<", ";
+		output<<str[sid2];
+		output<<aTuple.elemt_1;
+		output<<str[sid2];
+		output<<")";
+		return output; 
+	}
+	void operator=(const Tuple<T0, T1> &aTuple)
+	{
+		elemt_0 = aTuple.elemt_0;
+		elemt_1 = aTuple.elemt_1;
+	}
+	template <typename T_other_1, typename T_other_2>
+	Tuple<T0, T1> operator+(const Tuple<T_other_1, T_other_2> &aTuple)
+	{
+		Tuple<T0, T1> outTuple((T0)(elemt_0 + aTuple.elemt_0), (T1)(elemt_1 + aTuple.elemt_1));
+		return outTuple;
+	}
+	template <typename T_other_1, typename T_other_2>
+	Tuple<T0, T1> operator-(const Tuple<T_other_1, T_other_2> &aTuple)
+	{
+		Tuple<T0, T1> outTuple((T0)(elemt_0 - aTuple.elemt_0), (T1)(elemt_1 - aTuple.elemt_1));
+		return outTuple;
+	}
+	Tuple<T0, T1> operator-()//单纯负号重载 
+	{
+		Tuple<T0, T1> outTuple(-elemt_0, -elemt_1);
+		return outTuple;
+	}
+	template <typename T_other>
+	Tuple<T0, T1> operator*(const T_other &coef)//乘法（禁止非数字类） 
+	{
+		Tuple<T0, T1> outTuple((T0)(elemt_0 * coef), (T1)(elemt_1 * coef));
+		return outTuple;
+	}
+	template <typename T_other>
+	Tuple<T0, T1> operator/(const T_other &coef)//除法（禁止非数字类） 
+	{
+		if(coef == 0)
+			exit(1003);
+		Tuple<T0, T1> outTuple((T0)(elemt_0 / coef), (T1)(elemt_1 / coef));
+		return outTuple;
+	}
+	bool operator==(const Tuple<T0, T1> &aTuple)
+	{
+		return elemt_0 == aTuple.elemt_0 && elemt_1 == aTuple.elemt_1;
+	}
+	bool operator!=(const Tuple<T0, T1> &aTuple){return !(*this == aTuple);}
 };
 
 
@@ -424,6 +572,37 @@ public:
 			avalue++;
 		}
 	}
+	dict(cyclist<T_key> keys, cyclist<T_value> values)//两个初始化列表进行初始化 
+	{
+		int length = min(keys.size(), values.size());
+		bool same = 0;
+		int same_id = 0;
+		for(int num = 0; num < length; num += 1)
+		{
+			same = 0;
+			for(int id = 0; id < dsize; id += 1)
+				if(key[id] == keys[num])
+				{
+					same = 1;
+					same_id = id;
+					break;
+				}
+			if(!same)
+			{
+				key.append({keys[num]});
+				value.append({values[num]});
+				dsize += 1;
+			}
+			else
+				value[same_id] = values[num];
+		}
+	}
+	dict(const dict<T_key, T_value> &adict)
+	{
+		key = adict.key;
+		value = adict.value;
+		dsize = adict.dsize;
+	}
 	int size(){return dsize;}
 	T_value &operator[](T_key akey)//若访问不存在的key则报错退出 
 	{
@@ -467,104 +646,188 @@ public:
 			item.append({Tuple<T_key, T_value>(key[id], value[id])});
 		return item;
 	}
+	friend ostream &operator<<(ostream &output, const dict<T_key, T_value> &adict)
+	{
+		char Ttype1 = typeid(T_key).name()[0], Ttype2 = typeid(T_value).name()[0];
+		int sid1 = (Ttype1 == 'c' ? 1 : (Ttype1 == 'S' ? 2 : 0)), sid2 = (Ttype2 == 'c' ? 1 : (Ttype2 == 'S' ? 2 : 0));
+		string str[3] = {"", "\'", "\""};
+		output<<"{";
+		node<T_key>* akey = adict.key.start;
+		node<T_value>* avalue = adict.value.start;
+		for(int id = 0; id < adict.dsize; id += 1)
+		{
+			if(id > 0)
+				output<<", ";
+			output<<str[sid1];
+			output<<akey->value;
+			output<<str[sid1];
+			output<<": ";
+			output<<str[sid2];
+			output<<avalue->value;
+			output<<str[sid2];
+			akey = akey->next;
+			avalue = avalue->next;
+		}
+		output<<"}";
+		return output; 
+	}
+	void operator=(const dict<T_key, T_value> &adict)
+	{
+		key = adict.key;
+		value = adict.value;
+		dsize = adict.dsize;
+	}
+	bool operator==(const dict<T_key, T_value> &adict)
+	{
+		return dsize == adict.dsize && key == adict.key && value != adict.value;
+	}
+	bool operator!=(const dict<T_key, T_value> &adict){return !(*this == adict);}
 };
 template <typename T>
 class counter//统计计数器 
 {
+public:
 	dict<T, int> pool;
 	counter(){}
 	counter(cyclist<T> names)//设置计数列表，默认全重置0 
 	{
-		auto* pin = names.start;
 		int length = names.size();
 		for(int num = 0; num < length; num += 1)
-		{
-			pool.set(*pin, 0);
-			pin++;
-		}
+			pool.set(names[num], 0);
 	}
-	void set_zero()//全部重置 
+	int size(){return pool.size();}
+	void add(T akey)//添加统计项 
+	{
+		if(pool.key.find(akey) == -1)
+			pool.set(akey, 0);
+	}
+	void reset()//全部重置 
 	{
 		int length = pool.size();
 		cyclist<T> keys = pool.get_keys();
 		for(int id = 0; id < length; id += 1)
 			pool.set(keys[id], 0);
 	}
-	void plus(T aname){pool.set(aname, pool[aname] + 1);}//计数，若名字列表中不存在该值，则报错退出 
-	void plus(cyclist<T> names)//一次性计数多次 
+	void plus(T aname, int delta)//计数，若名字列表中不存在该值，则新建该值的统计 
 	{
-		int length = names.size();
-		for(int id = 0; id < length; id += 1)
-			pool.set(names[id], pool[names[id]] + 1);
+		this->add(aname);//存在则无效，不存在则创建 
+		pool.set(aname, pool[aname] + delta);
+	}
+	void plus(cyclist<T> names, cyclist<int> values)//一次性计数多个 
+	{
+		for(int id = 0; id < pool.size(); id += 1)
+		{
+			this->add(names[id]);
+			pool.set(names[id], pool[names[id]] + values[id]);
+		}
+	}
+	Tuple<cyclist<T>, int> maxlist()//取最大值
+	{
+		Tuple<cyclist<T>, int> max_list;
+		int maxs = -2147483648;
+		cyclist<T> keys = pool.get_keys();
+		for(int id = 0; id < keys.size(); id += 1)
+			if(pool[keys[id]] > maxs)
+			{
+				maxs = pool[keys[id]];
+				max_list.elemt_0.empty();
+				max_list.elemt_1 = maxs;
+				max_list.elemt_0.append({keys[id]});
+			}
+			else if(pool[keys[id]] == maxs)
+				max_list.elemt_0.append({keys[id]});
+		return max_list;
+	}
+	Tuple<cyclist<T>, int> minlist()//取最小值 
+	{
+		Tuple<cyclist<T>, int> min_list;
+		int mins = 2147483647;
+		cyclist<T> keys = pool.get_keys();
+		for(int id = 0; id < keys.size(); id += 1)
+			if(pool[keys[id]] < mins)
+			{
+				mins = pool[keys[id]];
+				min_list.elemt_0.empty();
+				min_list.elemt_1 = mins;
+				min_list.elemt_0.append({keys[id]});
+			}
+			else if(pool[keys[id]] == mins)
+				min_list.elemt_0.append({keys[id]});
+		return min_list;
+	}
+	friend ostream &operator<<(ostream &output, const counter<T> &acounter)
+	{
+		output<<acounter.pool;
+		return output;
 	}
 };
 
 
-template <typename T>
-class array_py//numpy数组 
-{
-public:
-	int dimension = 0;//维数 
-	cyclist<int> coordinates;//每个维数的长度
-	cyclist<long long int> prods;//辅助数组，计算系数用 
-	int value_num = 1;//总共的元素个数 
-	T* values = NULL;//元素的一元数组
-	array_py(){}
-	array_py(int dimen, cyclist<int> coordinatelist)//大小确定 
-	{
-		dimension = dimen;
-		for(int axis = 0; axis < dimen; axis += 1)
-		{
-			coordinates.append({coordinatelist[axis]});
-			value_num = max(1, value_num * coordinatelist[axis]);
-			prods.append({(long long int)coordinates[axis]});//先随便填数，让辅助数组达到需求长度 
-		}
-		values = new T[value_num];
-		prods[dimen - 1] = 1;
-		for(int axis = dimen - 2; axis >= 0; axis -= 1)
-			prods[axis] = coordinates[axis + 1] * prods[axis + 1];
-	}
-	array_py(int dimen, cyclist<int> coordinatelist, cyclist<T> valuelist)//大小确定，内容填充，顺便完成广播机制 
-	{
-		dimension = dimen;
-		for(int axis = 0; axis < dimen; axis += 1)
-		{
-			coordinates.append({coordinatelist[axis]});
-			value_num = max(1, value_num * coordinatelist[axis]);
-			prods.append({(long long int)coordinates[axis]});//先随便填数，让辅助数组达到需求长度 
-		}
-		values = new T[value_num];
-		for(int id = 0; id < value_num; id += 1)
-			values[id] = valuelist[id];
-		prods[dimen - 1] = 1;
-		for(int axis = dimen - 2; axis >= 0; axis -= 1)
-			prods[axis] = coordinates[axis + 1] * prods[axis + 1];
-	}
-	~array_py(){delete[] values;}
-	T &operator[](cyclist<int> subscripts)//越界访问将循环，下标从0开始；默认最后缺省的坐标分量为0，多的分量无效 
-	{
-		int length = subscripts.size();
-		cyclist<int> fixed_subscripts;
-		if(length >= dimension)
-			for(int axis = 0; axis < dimension; axis += 1)
-				fixed_subscripts.append({subscripts[axis] % coordinates[axis]});
-		else
-		{
-			for(int axis = 0; axis < length; axis += 1)
-				fixed_subscripts.append({subscripts[axis] % coordinates[axis]});
-			for(int axis = length; axis < dimension; axis += 1)
-				fixed_subscripts.append({0});
-		}
-		long long int ranks = 0;
-		for(int axis = 0; axis < dimension; axis += 1)
-			ranks += prods[axis] * fixed_subscripts[axis];
-		return values[ranks];
-	}
-	/*array<T> subarray(cyclist<int> subscripts)
-	{
-		
-	}*/
-};
+//template <typename T>
+//class array_py//numpy数组 
+//{
+//public:
+//	int dimension = 0;//维数 
+//	cyclist<int> coordinates;//每个维数的长度
+//	cyclist<long long int> prods;//辅助数组，计算系数用 
+//	int value_num = 1;//总共的元素个数 
+//	T* values = NULL;//元素的一元数组
+//	array_py(){}
+//	array_py(int dimen, cyclist<int> coordinatelist)//大小确定 
+//	{
+//		dimension = dimen;
+//		for(int axis = 0; axis < dimen; axis += 1)
+//		{
+//			coordinates.append({coordinatelist[axis]});
+//			value_num = max(1, value_num * coordinatelist[axis]);
+//			prods.append({(long long int)coordinates[axis]});//先随便填数，让辅助数组达到需求长度 
+//		}
+//		values = new T[value_num];
+//		prods[dimen - 1] = 1;
+//		for(int axis = dimen - 2; axis >= 0; axis -= 1)
+//			prods[axis] = coordinates[axis + 1] * prods[axis + 1];
+//	}
+//	array_py(int dimen, cyclist<int> coordinatelist, cyclist<T> valuelist)//大小确定，内容填充，顺便完成广播机制 
+//	{
+//		dimension = dimen;
+//		for(int axis = 0; axis < dimen; axis += 1)
+//		{
+//			coordinates.append({coordinatelist[axis]});
+//			value_num = max(1, value_num * coordinatelist[axis]);
+//			prods.append({(long long int)coordinates[axis]});//先随便填数，让辅助数组达到需求长度 
+//		}
+//		values = new T[value_num];
+//		for(int id = 0; id < value_num; id += 1)
+//			values[id] = valuelist[id];
+//		prods[dimen - 1] = 1;
+//		for(int axis = dimen - 2; axis >= 0; axis -= 1)
+//			prods[axis] = coordinates[axis + 1] * prods[axis + 1];
+//	}
+//	~array_py(){delete[] values;}
+//	T &operator[](cyclist<int> subscripts)//越界访问将循环，下标从0开始；默认最后缺省的坐标分量为0，多的分量无效 
+//	{
+//		int length = subscripts.size();
+//		cyclist<int> fixed_subscripts;
+//		if(length >= dimension)
+//			for(int axis = 0; axis < dimension; axis += 1)
+//				fixed_subscripts.append({subscripts[axis] % coordinates[axis]});
+//		else
+//		{
+//			for(int axis = 0; axis < length; axis += 1)
+//				fixed_subscripts.append({subscripts[axis] % coordinates[axis]});
+//			for(int axis = length; axis < dimension; axis += 1)
+//				fixed_subscripts.append({0});
+//		}
+//		long long int ranks = 0;
+//		for(int axis = 0; axis < dimension; axis += 1)
+//			ranks += prods[axis] * fixed_subscripts[axis];
+//		return values[ranks];
+//	}
+//	/*array<T> subarray(cyclist<int> subscripts)
+//	{
+//		
+//	}*/
+//};
 
 
 int** product(initializer_list<int> axis)//笛卡尔积，生成二维数组，每一行都是一个笛卡尔积元素 
