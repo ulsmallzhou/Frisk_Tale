@@ -29,7 +29,9 @@ using namespace std;
 //double duration = ((double)(stop - start))/CLK_TCK;
 
 
-//´íÎóµ÷ÊÔ£º1001(dict:KeyError), 1002(vatiable_array:OutOfRange), 1003(DividedByZero)
+//´íÎóµ÷ÊÔ£º1001(dict:KeyError), 1003(DividedByZero)
+//1004(Matrix:OutOfRange), 1005(Matrix:SizeNotMatch), 1006(Matrix:AllZero), 1007(Matrix:NotFullrank)
+//
 
 
 //Õ½¶·-Õ½¶·//punch, knife, magic, cancel
@@ -54,15 +56,9 @@ int main()
 				   column<int>({1000, 2000, 3000, 4000, 10})});
 	m.mult_line<int>(0, 3);
 	cout<<m;*/
-	matrix<int> a({column<int>({1, 2, 3}), column<int>({4, 5, 6}), column<int>({7, 8, 9})});
-	cout<<a;
-	a.mult_list(0, 3.3);
-	cout<<endl<<a;
-	a.swap_lines(0, 1);
-	cout<<endl<<a;
-	cout<<endl<<matrix<int>::quantity(5, 20);
-	a.right_extension(a);
-	a.right_extension(a);
-	cout<<endl<<a;
+	matrix<double> a({column<double>({1, 2, 3}), column<double>({4, 5, 6}), column<double>({7, 8, 9})});
+	matrix<double> b({column<double>({4, 1, 6}), column<double>({7, 1, 9}), column<double>({2, 1, 3})});
+	//cout<<a<<endl;
+	cout<<a.inverse();
 	return 0;
 }
