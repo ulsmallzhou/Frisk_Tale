@@ -7,6 +7,7 @@
 using namespace std;
 #include "keybd.cpp"
 #include "python3.cpp"
+#include "mathtype.cpp"
 #include "matrix.cpp"/*
 #include "geometry.cpp"
 #include "color.cpp"
@@ -29,7 +30,7 @@ using namespace std;
 //double duration = ((double)(stop - start))/CLK_TCK;
 
 
-//错误调试：1001(dict:KeyError), 1003(DividedByZero)
+//错误调试：1001(dict:KeyError), 1002(sqrt:Negtive), 1003(DividedByZero)
 //1004(Matrix:OutOfRange), 1005(Matrix:SizeNotMatch), 1006(Matrix:AllZero), 1007(Matrix:NotFullrank)
 //
 
@@ -38,7 +39,7 @@ using namespace std;
 //战斗-行动//check, talk, flirt, cancel
 //战斗-物品//cancel
 //战斗-饶恕//spare, run, save, cancel
-//战斗事件(分事件成功执行返回1，使得事件结束) 
+//战斗事件(分事件成功执行返回1，使得事件结束)
 int main()
 {
 	/*for(int num = 0; ; num += 1)
@@ -49,16 +50,12 @@ int main()
 	clock_t start = clock();
 	Home.func();
 	clock_t stop = clock();
-	endwords(start, stop);*//*
-	matrix<int> m({column<int>({2, 3, 4, 5, 60000}),\
-				   column<int>({10, 20, 30, 40, 1}),\
-				   column<int>({200, 300, 400, 500, 20}),\
-				   column<int>({1000, 2000, 3000, 4000, 10})});
-	m.mult_line<int>(0, 3);
-	cout<<m;*/
-	matrix<double> a({column<double>({1, 2, 3}), column<double>({4, 5, 6}), column<double>({7, 8, 9})});
+	endwords(start, stop);*/
+	matrix<double> a({column<double>({1, 0, 0}), column<double>({1, 1, 0}),\
+					  column<double>({1, 1, 1}), column<double>({1, 1, 1})});
 	matrix<double> b({column<double>({4, 1, 6}), column<double>({7, 1, 9}), column<double>({2, 1, 3})});
 	//cout<<a<<endl;
-	cout<<a.inverse();
+	Tuple<matrix<double>, matrix<double>> t = a.QR_decomposition();
+	cout<<a<<endl<<t.elemt_0<<endl<<t.elemt_1;
 	return 0;
 }

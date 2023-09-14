@@ -93,18 +93,20 @@ public:
 			outcolumn.pin[id] = outcolumn.pin[id] + acol.pin[id];
 		return outcolumn;
 	}
-	column<T> operator*(const column<T> &acol)
+	template <typename T_other>
+	column<T> operator*(const T_other &coef)
 	{
 		column<T> outcolumn = *this;
 		for(int id = 0; id < csize; id += 1)
-			outcolumn.pin[id] = (T)(outcolumn.pin[id] * acol.pin[id]);
+			outcolumn.pin[id] = (T)(outcolumn.pin[id] * coef);
 		return outcolumn;
 	}
-	column<T> operator/(const column<T> &acol)
+	template <typename T_other>
+	column<T> operator/(const T_other &coef)
 	{
 		column<T> outcolumn = *this;
 		for(int id = 0; id < csize; id += 1)
-			outcolumn.pin[id] = (T)(outcolumn.pin[id] / acol.pin[id]);
+			outcolumn.pin[id] = (T)(outcolumn.pin[id] / coef);
 		return outcolumn;
 	}
 	friend ostream &operator<<(ostream &output, const column<T> &acol)
@@ -126,8 +128,13 @@ T column_inner_product(column<T> col_1, column<T> col_2)//T只能是数字类
 	if(col_1.csize != col_2.csize)
 		exit(1005);
 	for(int id = 0; id < col_1.csize; id += 1)
-		sum = sum + col_1[id] * col_2[id];
+		sum = sum + (T)(col_1[id] * col_2[id]);
 	return sum;
+}
+template <typename T>
+double modulu(column<T> col)//T只能是数字类 
+{
+	return sqrt(column_inner_product(col, col));
 }
 
 
@@ -578,6 +585,23 @@ public:
 				outmatrix.pin[line][list] = (T)(outmatrix.pin[line][list] * pin[line][list]);
 		return outmatrix;
 	}
+	matrix<T> power(int index)//矩阵求幂 
+	{
+		if(msize_line != msize_list)
+			exit(1005);
+		matrix<T> base = *this;
+		if(index == 0)
+			return matrix<T>::quantity(msize_line, (T)(1));
+		else if(index < 0)
+			return base.inverse().power(-index);
+		else
+		{
+			for(int pow = 1; pow < index; pow += 1)
+				base = base * (*this);
+			base.ensure();
+			return base;
+		}
+	}
 	matrix<T> to_stepped()//求行简化阶梯型矩阵（需要T为定义了良好除法的数量类，至少是frac类或double类或complex<double>） 
 	{
 		matrix<T> base = *this;
@@ -626,11 +650,7 @@ public:
 				for(int list = 0; list < base.msize_list; list += 1)
 					base.pin[line][list] = base.pin[line][list] - temp * base.pin[subline][list];
 			}
-		//打补丁：double计算会产生误差导致0不严格 
-		for(int list = 0; list < base.msize_list; list += 1)
-			for(int line = 0; line < base.msize_line; line += 1)
-				if(abs(base.pin[line][list]) <= 0.0000000000001)
-					base.pin[line][list] = (T)(0);
+		base.ensure();
 		return base;
 	}
 	int rank()//返回矩阵的秩 
@@ -670,11 +690,7 @@ public:
 			matrix<T> BH = B.transpose();
 			matrix<T> CH = C.transpose();
 			matrix<T> outmatrix = CH * (C * CH).inverse() * (BH * B).inverse() * BH;
-			//打补丁：double计算会产生误差导致0不严格 
-			for(int list = 0; list < outmatrix.msize_list; list += 1)
-				for(int line = 0; line < outmatrix.msize_line; line += 1)
-					if(abs(outmatrix.pin[line][list]) <= 0.0000000000001)
-						outmatrix.pin[line][list] = (T)(0);
+			outmatrix.ensure();
 			return outmatrix;
 		}
 	}
@@ -693,15 +709,44 @@ public:
 					B.set_list(line, this->get_list(list));
 					break;
 				}
+		B.ensure();
+		C.ensure();
 		return Tuple<matrix<T>, matrix<T>>(B, C);
 	}
 	Tuple<matrix<T>, matrix<T>> QR_decomposition()//QR分解
 	{
-		if(msize_line != msize_list)
-			exit(1005);
 		int this_rank = this->rank();
 		if(this_rank == 0)
+			exit(1006);
+		if(this_rank < msize_list)
 			exit(1007);
+		matrix<T> Q = *this;
+		matrix<T> R(Tuple<int, int>(msize_list, msize_list));
+		T coef(0);
+		column<T> coef_0, coef_1;
+		for(int list = 0; list < msize_list; list += 1)
+		{
+			coef_0 = Q.get_list(list);
+			for(int sublist = 0; sublist < list; sublist += 1)
+			{
+				coef_1 = Q.get_list(sublist);
+				coef = -column_inner_product(coef_1, coef_0) / column_inner_product(coef_1, coef_1);
+				Q.plus_list(list, coef_1 * coef);
+			}
+			Q.mult_list<double>(list, 1 / modulu(Q.get_list(list)));
+		}
+		R = Q.transpose() * (*this);
+		Q.ensure();
+		R.ensure();
+		return Tuple<matrix<T>, matrix<T>>(Q, R);
+	}
+	void ensure()//打补丁：double计算会产生误差导致0不严格 
+	{
+		if(typeid(pin[0][0]).name()[0] < '0' || typeid(pin[0][0]).name()[0] > '9')//不是自定义的准确类型 
+			for(int list = 0; list < msize_list; list += 1)
+				for(int line = 0; line < msize_line; line += 1)
+					if(abs(pin[line][list]) <= 0.0000000000001)
+						pin[line][list] = (T)(0);
 	}
 };
 
