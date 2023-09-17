@@ -1,3 +1,10 @@
+template <typename T0, typename T1>
+class Tuple;
+
+
+class outputbox_base;
+
+
 template <typename T>
 class node//节点模板 
 {
@@ -12,6 +19,8 @@ public:
 };
 
 
+template <typename T0, typename T1>
+class Tuple;
 template <typename T>
 class cyclist//列表模板（其实是循环双向链表）
 {
@@ -434,7 +443,18 @@ public:
 		}
 		start->before = pin;
 		pin->next = start;
-	}
+	}/*
+	Tuple<Tuple<int, int>, cyclist<string>> output()
+	{
+		Tuple<Tuple<int, int>, cyclist<string>> elements[lsize];
+		node<T>* pin = start;
+		for(int id = 0; id < lsize; id += 1)
+		{
+			elements[id] = pin->value.output();
+			pin = pin->next;
+		}
+		return elements[0];
+	}*/
 };
 
 

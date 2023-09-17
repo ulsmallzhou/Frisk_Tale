@@ -5,11 +5,7 @@ public:
 	T* pin = NULL;
 	int csize = 0;
 	column(){}
-	column(int length)
-	{
-		csize = length;
-		pin = new T[length];
-	}
+	column(int length){csize = length; pin = new T[length];}
 	column(T* values, int length)
 	{
 		csize = length;
@@ -132,10 +128,7 @@ T column_inner_product(column<T> col_1, column<T> col_2)//T只能是数字类
 	return sum;
 }
 template <typename T>
-double modulu(column<T> col)//T只能是数字类 
-{
-	return sqrt(column_inner_product(col, col));
-}
+double modulu(column<T> col){return sqrt(column_inner_product(col, col));}//T只能是数字类 
 
 
 template <typename T>
@@ -150,6 +143,8 @@ public:
 	{
 		msize_line = size.first_elemt();
 		msize_list = size.second_elemt();
+		if(msize_line == 0 || msize_list == 0)
+			exit(1008);
 		pin = new T*[size.first_elemt()];
 		for(int line = 0; line < size.first_elemt(); line += 1)
 			pin[line] = new T[size.second_elemt()];
@@ -158,6 +153,8 @@ public:
 	{
 		msize_line = size.first_elemt();
 		msize_list = size.second_elemt();
+		if(msize_line == 0 || msize_list == 0)
+			exit(1008);
 		pin = new T*[size.first_elemt()];
 		for(int line = 0; line < size.first_elemt(); line += 1)
 		{
@@ -170,6 +167,8 @@ public:
 	{
 		msize_line = arrays.size();
 		msize_list = arrays[0].size();
+		if(msize_line == 0 || msize_list == 0)
+			exit(1008);
 		for(int id = 1; id < msize_line; id += 1)
 			if(msize_list > arrays[id].size())
 				msize_list = arrays[id].size();
@@ -185,6 +184,8 @@ public:
 	{
 		msize_line = amatrix.msize_line;
 		msize_list = amatrix.msize_list;
+		if(msize_line == 0 || msize_list == 0)
+			exit(1008);
 		pin = new T*[msize_line];
 		for(int line = 0; line < msize_line; line += 1)
 		{
@@ -199,6 +200,7 @@ public:
 			delete[] pin[line];
 		delete[] pin;
 	}
+	Tuple<int, int> size(){return Tuple<int, int>(msize_line, msize_list);}
 	void set_size(Tuple<int, int> size)//重置大小将删除所有数据，因此务必仅对未直接初始化的矩阵使用该函数 
 	{
 		if(pin != NULL)
@@ -210,9 +212,29 @@ public:
 		}
 		msize_line = size.elemt_0;
 		msize_list = size.elemt_1;
+		if(msize_line == 0 || msize_list == 0)
+			exit(1008);
 		pin = new T*[msize_line];
 		for(int line = 0; line < msize_line; line += 1)
 			pin[line] = new T[msize_list];
+	}
+	void reshape(Tuple<int, int> newsize)//重构长宽，需要面积不变 
+	{
+		long long int old_size = msize_line * msize_list;
+		long long int new_size = newsize.elemt_0 * newsize.elemt_1;
+		if(new_size != old_size)
+			exit(1005);
+		T** newpin = new T*[newsize.elemt_0];
+		for(int line = 0; line < newsize.elemt_0; line += 1)
+			newpin[line] = new T[newsize.elemt_1];
+		for(long long int elemt = 0; elemt < new_size; elemt += 1)
+			newpin[elemt / newsize.elemt_1][elemt % newsize.elemt_1] = pin[elemt / msize_list][elemt % msize_list];
+		for(int line = 0; line < msize_line; line += 1)
+			delete[] pin[line];
+		delete[] pin;
+		pin = newpin;
+		msize_line = newsize.elemt_0;
+		msize_list = newsize.elemt_1;
 	}
 	void set_line(int line, column<T> aline)//长度不匹配或越界将报错 
 	{
@@ -222,6 +244,30 @@ public:
 			exit(1004);
 		for(int list = 0; list < aline.size(); list += 1)
 			pin[line][list] = aline[list];
+	}
+	void insert_line(int line, column<T> aline)//line：插入的行是第几行 
+	{
+		if(aline.size() != msize_list)
+			exit(1005);
+		if(!(0 <= line && line <= msize_line))
+			exit(1004);
+		T** newpin = new T*[msize_line + 1];
+		for(int newline = 0; newline < msize_line + 1; newline += 1)
+		{
+			newpin[newline] = new T[msize_list];
+			for(int list = 0; list < msize_list; list += 1)
+				if(newline < line)
+					newpin[newline][list] = pin[newline][list];
+				else if(newline > line)
+					newpin[newline][list] = pin[newline - 1][list];
+				else if(newline == line)
+					newpin[newline][list] = aline.pin[list];
+		}
+		for(int line = 0; line < msize_line; line += 1)
+			delete[] pin[line];
+		delete[] pin;
+		pin = newpin;
+		msize_line = msize_line + 1;
 	}
 	column<T> get_line(int line)//获得行，越界报错 
 	{
@@ -233,6 +279,28 @@ public:
 			exit(1004);
 		return aline;
 	}
+	void delete_line(int line)//删除行 
+	{
+		if(line < 0 || line >= msize_line)
+			exit(1004);
+		if(msize_line == 1 || msize_list == 0)
+			exit(1008);
+		T** newpin = new T*[msize_line - 1];
+		for(int newline = 0; newline < msize_line - 1; newline += 1)
+		{
+			newpin[newline] = new T[msize_list];
+			for(int list = 0; list < msize_list; list += 1)
+				if(newline < line)
+					newpin[newline][list] = pin[newline][list];
+				else
+					newpin[newline][list] = pin[newline + 1][list];
+		}
+		for(int line = 0; line < msize_line; line += 1)
+			delete[] pin[line];
+		delete[] pin;
+		pin = newpin;
+		msize_line = msize_line - 1;
+	}
 	void set_list(int list, column<T> alist)//长度不匹配或越界将报错 
 	{
 		if(alist.size() != msize_line)
@@ -241,6 +309,30 @@ public:
 			exit(1004);
 		for(int line = 0; line < alist.size(); line += 1)
 			pin[line][list] = alist[line];
+	}
+	void insert_list(int list, column<T> alist)//list：插入的行是第几列 
+	{
+		if(alist.size() != msize_line)
+			exit(1005);
+		if(!(0 <= list && list <= msize_list))
+			exit(1004);
+		T** newpin = new T*[msize_line];
+		for(int line = 0; line < msize_line; line += 1)
+		{
+			newpin[line] = new T[msize_list + 1];
+			for(int newlist = 0; newlist < msize_list + 1; newlist += 1)
+				if(newlist < list)
+					newpin[line][newlist] = pin[line][newlist];
+				else if(newlist > list)
+					newpin[line][newlist] = pin[line][newlist - 1];
+				else if(newlist == list)
+					newpin[line][newlist] = alist.pin[line];
+		}
+		for(int line = 0; line < msize_line; line += 1)
+			delete[] pin[line];
+		delete[] pin;
+		pin = newpin;
+		msize_list = msize_list + 1;
 	}
 	column<T> get_list(int list)//获得列，越界报错 
 	{
@@ -251,6 +343,28 @@ public:
 		else
 			exit(1004);
 		return alist;
+	}
+	void delete_list(int list)//删除列 
+	{
+		if(list < 0 || list >= msize_list)
+			exit(1004);
+		if(msize_list == 1 || msize_line == 0)
+			exit(1008);
+		T** newpin = new T*[msize_line];
+		for(int line = 0; line < msize_line; line += 1)
+		{
+			newpin[line] = new T[msize_list - 1];
+			for(int newlist = 0; newlist < msize_list - 1; newlist += 1)
+				if(newlist < list)
+					newpin[line][newlist] = pin[line][newlist];
+				else
+					newpin[line][newlist] = pin[line][newlist + 1];
+		}
+		for(int line = 0; line < msize_line; line += 1)
+			delete[] pin[line];
+		delete[] pin;
+		pin = newpin;
+		msize_list = msize_list - 1;
 	}
 	void set_point(int line, int list, T value)//越界将报错 
 	{
@@ -602,6 +716,47 @@ public:
 			return base;
 		}
 	}
+	matrix<T> to_uppertri()//行简化为上三角矩阵 
+	{
+		matrix<T> base = *this;
+		bool all_zero = 1;
+		bool mainpoint_find = 0;
+		cyclist<int> main_list;//存放主要列
+		T temp;//临时变量 
+		//第一阶段：从上到下
+		for(int ruler = 0; ruler < base.msize_line; ruler += 1)
+		{
+			all_zero = 1;
+			for(int line = ruler; line < base.msize_line && all_zero; line += 1)
+				for(int list = 0; list < base.msize_list && all_zero; list += 1)
+					if(base.pin[line][list] != (T)(0))
+						all_zero = 0;
+			if(all_zero)
+				break;
+			mainpoint_find = 0;
+			for(int list = 0; list < base.msize_list && !mainpoint_find; list += 1)
+				for(int line = ruler; line < base.msize_line && !mainpoint_find; line += 1)
+					if(base.pin[line][list] != (T)(0))
+					{
+						mainpoint_find = 1;
+						base.swap_lines(ruler, line);//行交换
+						temp = base.pin[ruler][list];
+						main_list.append({list});//记录矩阵主要列
+					}
+			for(int line = ruler + 1; line < base.msize_line; line += 1)//下面的行进行去首 
+			{
+				temp = base.pin[line][main_list[ruler]] / base.pin[ruler][main_list[ruler]];
+				for(int list = 0; list < base.msize_list; list += 1)
+				{
+					base.pin[line][list] = base.pin[line][list] - temp * base.pin[ruler][list];
+					if(abs(base.pin[line][list]) <= 0.0000000000001)
+						base.pin[line][list] = (T)(0);
+				}
+			}
+		}
+		base.ensure();
+		return base;
+	}
 	matrix<T> to_stepped()//求行简化阶梯型矩阵（需要T为定义了良好除法的数量类，至少是frac类或double类或complex<double>） 
 	{
 		matrix<T> base = *this;
@@ -739,6 +894,49 @@ public:
 		Q.ensure();
 		R.ensure();
 		return Tuple<matrix<T>, matrix<T>>(Q, R);
+	}
+	/* TODO (#1#): 记得更换自己写的sqrt函数 */
+	T det()//求行列式或广义行列式 
+	{
+		if(msize_line > msize_list)
+			return sqrt((*this * this->transpose()).det());
+		else if(msize_line < msize_list)
+			return this->transpose().det();
+		matrix<T> submatrix = this->to_uppertri();
+		T prod(1);
+		for(int linest = 0; linest < msize_line; linest += 1)
+			prod = (T)(prod * submatrix.pin[linest][linest]);
+		return prod;
+	}
+	/* TODO (#1#): 补全求解方程组 */
+	matrix<T> kramer()//求以该矩阵为增广矩阵的方程组的解集
+	{
+		if(msize_line == 0 || msize_list <= 1)
+			exit(1008);
+		matrix<T> base = this->to_stepped();
+		int rank = base.rank();
+		int unknown = msize_list - 1;
+		//下一步：找出非主元列，作为自由变量
+		bool* notmain = new bool[msize_list];
+		int notmain_num = msize_list;
+		for(int list = 0; list < msize_list; list += 1)
+			notmain[list] = 1;
+		for(int line = 0; line < rank; line += 1)
+			for(int list = 0; list < msize_list; list += 1)
+				if(base.pin[line][list] != (T)(0))
+				{
+					notmain[list] = 0;
+					notmain_num -= 1;
+					break;
+				}
+	}
+	matrix<T> kramer(matrix<T> coefs)//求以该矩阵为系数矩阵的方程组的解集 
+	{
+		if(coefs.msize_line != msize_line || coefs.msize_list != 1)
+			exit(1005);
+		if(msize_line == 0 || msize_list == 0)
+			exit(1008);
+		return this->splice_right(coefs).kramer();
 	}
 	void ensure()//打补丁：double计算会产生误差导致0不严格 
 	{

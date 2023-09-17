@@ -5,23 +5,7 @@
 #include <conio.h>
 #include <string>
 using namespace std;
-#include "keybd.cpp"
-#include "python3.cpp"
-#include "mathtype.cpp"
-#include "matrix.cpp"/*
-#include "geometry.cpp"
-#include "color.cpp"
-#include "position.cpp"
-#include "print.cpp"
-#include "scanf.cpp"
-#include "entity.cpp"
-#include "levels.cpp"
-#include "page.cpp"
-#include "loadsave.cpp"
-#include "declare.cpp"
-#include "pageandoption.cpp"
-#include "pageoptionfunction.cpp"
-#include "initialization.cpp"*/
+#include "include.cpp"
 //时间测试函数 
 //clock_t start, stop;
 //start = clock();
@@ -31,8 +15,9 @@ using namespace std;
 
 
 //错误调试：1001(dict:KeyError), 1002(sqrt:Negtive), 1003(DividedByZero)
-//1004(Matrix:OutOfRange), 1005(Matrix:SizeNotMatch), 1006(Matrix:AllZero), 1007(Matrix:NotFullrank)
-//
+//1004(Matrix:OutOfRange), 1005(Matrix:SizeNotMatch), 1006(Matrix:AllZero)
+//1007(Matrix:NotFullrank), 1008(Matrix:ZeroSize)
+//1009(Geometry:Uncertain)
 
 
 //战斗-战斗//punch, knife, magic, cancel
@@ -46,16 +31,28 @@ int main()
 	{
 		cout<<update_get(50)<<" ";//应当检测连续的三个数以排除意外波动
 	}*//*
+	matrix<double> a({column<double>({4, 0, 0, 2, 4}), column<double>({1, 1, 0, 3, 12}),\
+					  column<double>({1, 1, 1, 2, 3}), column<double>({1, 1, 1, 1, 2}),\
+					  column<double>({1, 0, 0, 4, 10})});*/
+	matrix<double> a({column<double>({4, 1, 6}), column<double>({7, 1, 9}), column<double>({2, 1, 3}), column<double>({2, 1, 3})});
+	/*cout<<a;
+	a.insert_line(1, column<double>({4, 0, 201, 2, 4}));
+	cout<<endl<<a;
+	a.insert_list(1, column<double>({4, 0, 201, 1023, 2, 4}));
+	cout<<endl<<a;
+	a.reshape(Tuple<int, int>(3, 12));
+	cout<<endl<<a;*/
+	cyclist<matrix<double>> b({a, a});
+	Tuple<Tuple<int, int>, cyclist<string>> outputbox_b = output(b);
+	for(int line = 0; line < outputbox_b.elemt_0.elemt_0; line += 1)
+		cout<<outputbox_b.elemt_1[line]<<endl;
+	return 0;
+}/*
+int main()
+{
 	initialization();//初始化
 	clock_t start = clock();
 	Home.func();
 	clock_t stop = clock();
-	endwords(start, stop);*/
-	matrix<double> a({column<double>({1, 0, 0}), column<double>({1, 1, 0}),\
-					  column<double>({1, 1, 1}), column<double>({1, 1, 1})});
-	matrix<double> b({column<double>({4, 1, 6}), column<double>({7, 1, 9}), column<double>({2, 1, 3})});
-	//cout<<a<<endl;
-	Tuple<matrix<double>, matrix<double>> t = a.QR_decomposition();
-	cout<<a<<endl<<t.elemt_0<<endl<<t.elemt_1;
-	return 0;
-}
+	endwords(start, stop);
+}*/

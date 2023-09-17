@@ -2,7 +2,7 @@ template <typename T>
 T absolute(T input){return input < (T)(0) ? -input : input;}
 
 
-//该文件是对高精度的支持 
+//以下是对高精度的支持 
 const int MAX_NUMBER_LENGTH = 9;//安全起见，每一位long long int存放9位10进制数
 const long long int CARRY = 1000000000;//和MAX_NUMBER_LENGTH匹配 
 class pint//高精度整数 
@@ -13,7 +13,7 @@ public:
 	pint()
 	{
 		sign = 0;
-		pin.apppend({0});
+		pin.append({0});
 	}
 	pint(int input)
 	{
@@ -22,7 +22,7 @@ public:
 		if(input >= CARRY)
 			pin.append({input / CARRY, input % CARRY});
 		else
-			pin.apppend({input});
+			pin.append({input});
 	}
 	pint(long long int input)
 	{
@@ -33,7 +33,7 @@ public:
 		else if(input >= CARRY)
 			pin.append({input / CARRY, input % CARRY});
 		else
-			pin.apppend({input});
+			pin.append({input});
 	}
 	pint(const pint &apint)
 	{
@@ -47,7 +47,7 @@ public:
 		if(input >= CARRY)
 			pin.append({input / CARRY, input % CARRY});
 		else
-			pin.apppend({input});
+			pin.append({input});
 	}
 	void set(long long int input)
 	{
@@ -58,7 +58,7 @@ public:
 		else if(input >= CARRY)
 			pin.append({input / CARRY, input % CARRY});
 		else
-			pin.apppend({input});
+			pin.append({input});
 	}
 	void set(pint input)
 	{
@@ -77,10 +77,8 @@ public:
 			return apint;
 		if(apint.sign == 0)
 			return *this;
-		if(this->sign == -1)
-			return -((-*this) + (-apint));
 		int length_1 = pin.size();
-		int length_2 = apint.pin.size();
+		int length_2 = apint.pin.lsize;
 		pint outpint = *this;
 		if(apint.sign == -1)
 		{
@@ -92,9 +90,9 @@ public:
 		}
 		return apint;
 	}
-	pint operator-(const pint &apint)//减法 
+	pint operator-(const pint &apint)//减法 TODO
 	{
-		return *this + (-apint);
+		return *this;
 	}
 	pint operator-()//负号 
 	{
@@ -126,12 +124,12 @@ public:
 		}
 		return 1;
 	}
-	bool operator<(const pint &apint)
+	bool operator<(const pint &apint)//TODO
 	{
 		if(sign == 0)
-			return (apint.sign == 1);
+			return (apint.sign == 1);/*
 		if(sign == -1)
-			return (-*this > -apint);
+			return (-*this > -apint);*/
 		if(apint.sign != 1)
 			return 0;
 		if(pin.lsize != apint.pin.lsize)
