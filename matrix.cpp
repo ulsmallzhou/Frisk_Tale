@@ -377,8 +377,7 @@ public:
 	{
 		static column<T> acol(msize_list);
 		if(0 <= line && line < msize_line)
-			for(int list = 0; list < msize_list; list += 1)
-				acol.set(pin[line][list], list);
+			acol = this->get_line(line);
 		else
 			exit(1004);
 		return acol;
@@ -478,6 +477,62 @@ public:
 		for(int line = 0; line < size.elemt_0; line += 1)
 			for(int list = 0; list < size.elemt_1; list += 1)
 				outmatrix.set_point(line, list, (T)(0));
+		return outmatrix;
+	}
+	static matrix<T> diag(cyclist<T> values)//产生对角矩阵 
+	{
+		int size = values.size();
+		matrix<T> outmatrix(Tuple<int, int>(size, size));
+		for(int line = 0; line < size; line += 1)
+			for(int list = 0; list < size; list += 1)
+				outmatrix.set_point(line, list, (line == list ? values[line] : (T)(0)));
+		return outmatrix;
+	}
+	static matrix<T> full(Tuple<int, int> size, T value)//产生一个全填充的给定大小的矩阵 
+	{
+		matrix<T> outmatrix(size);
+		for(int line = 0; line < size.elemt_0; line += 1)
+			for(int list = 0; list < size.elemt_1; list += 1)
+				outmatrix.set_point(line, list, value);
+		return outmatrix;
+	}
+	static matrix<T> block(matrix<matrix<T>> input)//矩阵的矩阵视为分块矩阵
+	{
+		if(input.msize_line == 0 || input.msize_list == 0)
+			exit(1008);
+		Tuple<int, int> input_size(input.msize_line, input.msize_list);
+		int height[input_size.elemt_0];
+		int width[input_size.elemt_1];
+		int height_sum = 0;
+		int width_sum = 0;
+		for(int line = 0; line < input_size.elemt_0; line += 1)
+		{
+			height[line] = input[line][0].msize_line;
+			if(height[line] == 0)
+				exit(1008);
+			height_sum += height[line];
+		}
+		for(int list = 0; list < input_size.elemt_1; list += 1)
+		{
+			width[list] = input[0][list].msize_list;
+			if(width[list] == 0)
+				exit(1008);
+			width_sum += width[list];
+		}
+		for(int line = 0; line < input_size.elemt_0; line += 1)
+			for(int list = 0; list < input_size.elemt_1; list += 1)
+				if(input[line][list].msize_line != height[line] || input[line][list].msize_list != width[list])
+					exit(1005);
+		matrix<T> matrixs[input_size.elemt_0];
+		for(int line = 0; line < input_size.elemt_0; line += 1)
+		{
+			matrixs[line] = input[line][0];
+			for(int list = 1; list < input_size.elemt_1; list += 1)
+				matrixs[line].splice_right(input[line][list]);
+		}
+		matrix<T> outmatrix = matrixs[0];
+		for(int line = 1; line < input_size.elemt_0; line += 1)
+			outmatrix.splice_low(matrixs[line]);
 		return outmatrix;
 	}
 	void swap_lines(int line_1, int line_2)//交换两行元素 
@@ -699,6 +754,7 @@ public:
 				outmatrix.pin[line][list] = (T)(outmatrix.pin[line][list] * pin[line][list]);
 		return outmatrix;
 	}
+	/* TODO (#1#): 快速幂 */
 	matrix<T> power(int index)//矩阵求幂 
 	{
 		if(msize_line != msize_list)
@@ -824,7 +880,7 @@ public:
 			amatrix.set_list(list, this->get_line(list));
 		return amatrix;
 	}
-	matrix<T> inverse()//求逆（或广义逆）注：本矩阵计算工具不考虑复数 
+	matrix<T> inverse()//求逆或广义逆（注：本矩阵计算工具不考虑复数 
 	{
 		int this_rank = this->rank();
 		if(this_rank == 0)
@@ -948,18 +1004,18 @@ public:
 	}
 };
 
-
+/*
 template <typename T>
 class nparray
 {
-	void* values;
+	void* values = NULL;
 	int dimension = 0;
 	cyclist<int> asize;
 	nparray(){}
-	/*nparray(int dimen)
+	nparray(int dimen)
 	{
 		
-	}*/
-};
+	}
+};*/
 
 

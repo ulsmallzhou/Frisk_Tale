@@ -1,4 +1,11 @@
 //×¨ÃÅ·ÅincludeÓï¾ä 
+#include <bits/stdc++.h>
+#include <windows.h>
+#include <math.h>
+#include <fstream>
+#include <conio.h>
+#include <string>
+using namespace std;
 #include "keybd.cpp"
 #include "python3.cpp"
 #include "basetype.cpp"
