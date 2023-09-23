@@ -396,12 +396,17 @@ outputbox output(matrix<T> input)//针对matrix的特化
 
 
 template<typename T>
-outputbox output(Vectors<T> input)//针对Vectors的特化
+outputbox output(point_2<T> input)//针对point的特化
+{
+	return output(cyclist<T>({input.x, input.y}));
+}
+template<typename T>
+outputbox output(point_3<T> input)//针对Vectors的特化
 {
 	return output(cyclist<T>({input.x, input.y, input.z}));
 }
 template<typename T>
-outputbox output(Line<T> input)//针对Line的特化
+outputbox output(Line_3<T> input)//针对Line_3的特化
 {
 	outputbox number[6];
 	number[0] = output(input.start.x); number[1] = output(input.start.y); number[2] = output(input.start.z);
@@ -465,10 +470,11 @@ outputbox output(Line<T> input)//针对Line的特化
 	Tuple<int, int> size(height_upper + 1 + height_lower, 3 * (frac_width + 2));
 	return Tuple<Tuple<int, int>, cyclist<string>>(size, out_texts);
 }
+/* TODO (#1#): 补全surface的输出 */
 template<typename T>
 outputbox output(Surface<T> input)//针对Surface的特化
 {
-	Vectors<T> coef = cross_product(input.veloc_1, input.veloc_2);
+	point_3<T> coef = cross_product(input.veloc_1, input.veloc_2);
 	outputbox number[6];
 	number[0] = output(input.start.x); number[1] = output(input.start.y); number[2] = output(input.start.z);
 	number[3] = output(coef.x); number[4] = output(coef.y); number[5] = output(coef.z);
@@ -517,18 +523,6 @@ outputbox output(Surface<T> input)//针对Surface的特化
 			textline = textline + (height[rank] == 0 ? space_start : text[rank][0]);
 			textline = textline + const_text[3 + rank];
 		}
-		/*textline = textline + (height[3] == 0 ? space_coef : text[3][0]);
-		textline = textline + "(x - ";
-		textline = textline + (height[0] == 0 ? space_start : text[0][0]);
-		textline = textline + ") + ";
-		textline = textline + (height[4] == 0 ? space_coef : text[4][0]);
-		textline = textline + "(y - ";
-		textline = textline + (height[1] == 0 ? space_start : text[1][0]);
-		textline = textline + ") + ";
-		textline = textline + (height[5] == 0 ? space_coef : text[5][0]);
-		textline = textline + "(z - ";
-		textline = textline + (height[2] == 0 ? space_start : text[2][0]);
-		textline = textline + ") = 0";*/
 		out_texts.append({textline});
 		Tuple<int, int> size(1, 3 * (width_coef + width_start) + 28);
 		return Tuple<Tuple<int, int>, cyclist<string>>(size, out_texts);
