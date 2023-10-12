@@ -13,7 +13,7 @@ using namespace std;
 #include "../geometry/geometry_2.cpp"
 #include "../geometry/geometry_3.cpp"
 #include "../basestruct/color.cpp"
-#include "../basestruct/position.cpp"
+#include "../basestruct/position.cpp"/*
 #include "../init_io/print.cpp"
 #include "../init_io/scanf.cpp"
 #include "../entity.cpp"
@@ -22,6 +22,6 @@ using namespace std;
 #include "../init_io/loadsave.cpp"
 #include "../pageoption/declare.cpp"
 #include "../pageoption/pageandoption.cpp"
-#include "../pageoption/pageoptionfunction.cpp"
+#include "../pageoption/pageoptionfunction.cpp"*/
 #include "../init_io/output.cpp"
-#include "../init_io/initialization.cpp"
+//#include "../init_io/initialization.cpp"

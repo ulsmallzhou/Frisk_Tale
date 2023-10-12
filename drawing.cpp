@@ -7,7 +7,7 @@
 //double duration = ((double)(stop - start))/CLK_TCK;
 
 
-//´íÎóµ÷ÊÔ£º1001(dict:KeyError), 1002(sqrt:Negtive), 1003(DividedByZero)
+//´íÎóµ÷ÊÔ£º1001(dict:KeyError), 1002(sqrt:Negtive), 1003(DividedByZero), 1011(UncertainOperator)
 //1004(Matrix:OutOfRange), 1005(Matrix:SizeNotMatch), 1006(Matrix:AllZero)
 //1007(Matrix:NotFullrank), 1008(Matrix:ZeroSize)
 //1009(Geometry:Uncertain), 1010(P_int:Illegal)
@@ -40,11 +40,9 @@ int main()
 	print_block(outputbox_c);
 	cout<<endl<<get_height(outputbox_c)<<" "<<get_width(outputbox_c)<<endl<<get_text(outputbox_c);*/
 	p_int a, b;
-	a = "-123456123456543212345654323456765432345676543234567789";
-	b = "1234567884567645";
-	//cout<<a<<" % "<<b<<" = "<<(a % b)<<endl;
-	cout<<a.tostring()<<endl<<b.tostring();
-	cout<<endl<<a.size()<<" "<<b.size();
+	a = "-1234561234000000000000000005654329990000000000000000000";
+	b = "123456";
+	p_frac c(a, b);
 	return 0;
 }
 /*

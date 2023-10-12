@@ -17,8 +17,7 @@ public:
 	point_2<T> operator*(const T &coef){return point_2<T>(x * coef, y * coef);}
 	point_2<T> operator/(const T &coef)
 	{
-		if(coef == (T)(0))
-			exit(1003);
+		if(coef == (T)(0)) exit(1003);
 		return point_2<T>(x / coef, y / coef);
 	}
 	bool operator==(const point_2<T> &apoint){return (x == apoint.x && y == apoint.y);}
@@ -29,17 +28,10 @@ public:
 			*this = *this - apoint * inner_product<T>(*this, apoint) / inner_product<T>(apoint, apoint);
 	}
 };
-template <typename T>
-T inner_product(point_2<T> point1, point_2<T> point2)//内积 
-{
-	return (T)(point1.x * point2.x + point1.y * point2.y);
-}
-template <typename T>
-matrix<T> outer_product(point_2<T> point1, point_2<T> point2)//外积 
-{
-	matrix<T> outmatrix({column<T>({point1.x * point2.x, point1.x * point2.y}), column<T>({point1.y * point2.x, point1.y * point2.y})});
-	return outmatrix;
-}
+template <typename T>//内积 
+T inner_product(point_2<T> point1, point_2<T> point2){return (T)(point1.x * point2.x + point1.y * point2.y);}
+template <typename T>//外积 
+matrix<T> outer_product(point_2<T> point1, point_2<T> point2){return matrix<T>({column<T>({point1.x * point2.x, point1.x * point2.y}), column<T>({point1.y * point2.x, point1.y * point2.y})});}
 template <typename T>
 point_2<T> projection(point_2<T> base, point_2<T> apoint)//向量在给定向量上的投影 
 {
@@ -56,31 +48,28 @@ public:
 	Line_2(){}
 	Line_2(point_2<T> st, point_2<T> ve)
 	{
-		if(ve == point_2<T>((T)(0), (T)(0)))
-			exit(1009);
-		start = st;
-		veloc = ve;
-		start.plumb(veloc);
+		if(ve == point_2<T>((T)(0), (T)(0))) exit(1009);
+		start = st; veloc = ve; start.plumb(veloc);
 	}
-	void operator=(const Line_2 &aline)
-	{
-		start = aline.start;
-		veloc = aline.veloc;
-	}
+	void operator=(const Line_2 &aline){start = aline.start; veloc = aline.veloc;}
 	bool operator==(const Line_2 &aline)
 	{
 		Line_2 line = aline;
 		if(start != line.start) return 0;
 		return line.veloc.parallel(veloc);
 	}
-	bool operator!=(const Line_2 &aline)
-	{
-		return !(*this == aline);
-	}
+	bool operator!=(const Line_2 &aline){return !(*this == aline);}
 };
 template <typename T>
 class Convex_Hull_2//二维凸包（凸多边形） 
 {
-	cyclist<point_2<T>> edgepoints;
+	point_2<T> center;//中心坐标 
+	cyclist<point_2<T>> edgepoints;//凸包点相对于中心的坐标
+	Convex_Hull_2(){}
+	Convex_Hull_2(cyclist<point_2<T>> points)
+	{
+		int point_num = points.size();
+		if(point_num < 3) exit(1009);
+	}
 };
 

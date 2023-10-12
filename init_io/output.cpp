@@ -396,12 +396,12 @@ outputbox output(matrix<T> input)//针对matrix的特化
 
 
 template<typename T>
-outputbox output(point_2<T> input)//针对point的特化
+outputbox output(point_2<T> input)//针对point_2的特化
 {
 	return output(cyclist<T>({input.x, input.y}));
 }
 template<typename T>
-outputbox output(point_3<T> input)//针对Vectors的特化
+outputbox output(point_3<T> input)//针对point_3的特化
 {
 	return output(cyclist<T>({input.x, input.y, input.z}));
 }
